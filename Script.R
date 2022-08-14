@@ -14,11 +14,8 @@ library (fpp2)
 # 01. Import Data
 data <- data.frame(readxl::read_xlsx("./data/BabyWeights.xlsx", sheet = 'Data'))
 
-data %>%
-  ggplot(aes(x=Date, y = Weigh..gr.)) +
-  geom_point(size = 2, color = "Blue") 
 
-# interpolating missing data 
+# interpolating missing data with averages
 data[2,2] <- data[1,2] + 55/6
 data[3,2] <- data[2,2] + 55/6
 data[4,2] <- data[3,2] + 55/6
@@ -28,6 +25,11 @@ data[10,2] <- (data[9,2] + data[11,2])/2
 data[16,2] <- (data[15,2] + data[17,2])/2
 data[19,2] <- (data[18,2] + data[20,2])/2
 data[32,2] <- (data[31,2] + data[33,2])/2
+
+# 01a. Printing
+data %>%
+  ggplot(aes(x=Date, y = Weigh..gr.)) +
+  geom_point(size = 2, color = "Blue") 
 
 #####
 # 02. Setting up the Time Series
@@ -42,7 +44,8 @@ Acf(data_ts)
 Pacf(data_ts)
 
 
-
+#####
+# 04. Forecasting - still under development
 fit_arima <- auto.arima (data_ts, stepwise = FALSE, approximation = FALSE, trace = TRUE)
 print(summary(fit_arima))   # 
 checkresiduals(fit_arima)
