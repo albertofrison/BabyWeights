@@ -13,7 +13,12 @@ library (fpp2)
 ######
 # 01. Import Data
 data <- data.frame(readxl::read_xlsx("./data/BabyWeights.xlsx", sheet = 'Data'))
+any(is.na(data))
+data[which(is.na(data$Weigh..gr.)),]
+data <- mutate (data, type = "")
+data <- mutate (data, week <- )
 
+data$type <- ifelse (is.na(data$Weigh..gr.), data$type <- "interpolated", data$type <- "original")
 
 # interpolating missing data with averages
 data[2,2] <- data[1,2] + 55/6
@@ -25,11 +30,14 @@ data[10,2] <- (data[9,2] + data[11,2])/2
 data[16,2] <- (data[15,2] + data[17,2])/2
 data[19,2] <- (data[18,2] + data[20,2])/2
 data[32,2] <- (data[31,2] + data[33,2])/2
+data[35,2] <- (data[34,2] + data[36,2])/2
+data[38,2] <- (data[37,2] + data[39,2])/2
 
 # 01a. Printing
 data %>%
-  ggplot(aes(x=Date, y = Weigh..gr.)) +
-  geom_point(size = 2, color = "Blue") 
+  ggplot(aes(x = Date, y = Weigh..gr., color = type)) +
+  geom_point(size = 2) 
+
 
 #####
 # 02. Setting up the Time Series
@@ -38,11 +46,10 @@ data_ts <- ts(data$Weigh..gr., c(2022, as.numeric(format(inds[1], "%j"))), frequ
 
 
 #####
-# 03. Some Preliminary Analysìs on the TS
+# 03. Some Preliminary analysìs on the TS
 PP.test(data_ts) #p-value 0.2348 --> has unit root
 Acf(data_ts)
 Pacf(data_ts)
-
 
 #####
 # 04. Forecasting - still under development
