@@ -16,11 +16,14 @@ data <- data.frame(readxl::read_xlsx("./data/BabyWeights.xlsx", sheet = 'Data'))
 any(is.na(data))
 data[which(is.na(data$Weigh..gr.)),]
 data <- mutate (data, type = "")
-data <- mutate (data, week <- )
-
-data$type <- ifelse (is.na(data$Weigh..gr.), data$type <- "interpolated", data$type <- "original")
+# calculate the week - starting from 01 - up to last day entered
+n <- nrow(data)
+m <- n %/% 7
+o <- n %% 7 
+data <- mutate (data, week = c(rep(1:m, each = 7, times = 1), rep(m+1, each = o)))
 
 # interpolating missing data with averages
+data$type <- ifelse (is.na(data$Weigh..gr.), data$type <- "interpolated", data$type <- "original")
 data[2,2] <- data[1,2] + 55/6
 data[3,2] <- data[2,2] + 55/6
 data[4,2] <- data[3,2] + 55/6
@@ -36,12 +39,27 @@ data[38,2] <- (data[37,2] + data[39,2])/2
 # 01a. Printing
 data %>%
   ggplot(aes(x = Date, y = Weigh..gr., color = type)) +
-  geom_point(size = 2) 
+  geom_point(size = 2) +
+  labs(title = "Daily Weight Report", subtitle = "Daily Weight Record in gramms from week 1") +
+  xlab ("Date") +
+  ylab ("Weight gr.")
+
+# 01b. Average Weekly Gain
+data %>%
+  group_by (week) %>%
+  mutate (avg_gain = (last (Weigh..gr.) - first(Weigh..gr.)) / n()) %>%
+  select (week, avg_gain) %>%
+  distinct() %>%
+  ggplot (aes(x = week, y = avg_gain)) +
+  geom_point(size = 4, color = "Red") +
+  labs(title = "Average Daily Weight Increase", subtitle = "Average Daily Weight Increase in gramms from week 1") +
+  xlab ("Week Number") +
+  ylab ("Average Gain")
 
 
 #####
 # 02. Setting up the Time Series
-inds <- seq (from = as.Date("2022-07-18"), to = as.Date("2022-08-13"), by = "day")
+inds <- seq (from = as.Date("2022-07-18"), to = as.Date("2022-08-21"), by = "day")
 data_ts <- ts(data$Weigh..gr., c(2022, as.numeric(format(inds[1], "%j"))), frequency = 365)
 
 
