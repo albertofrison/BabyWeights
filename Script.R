@@ -65,15 +65,15 @@ data_ts <- ts(data$Weigh..gr., c(2022, as.numeric(format(inds[1], "%j"))), frequ
 
 #####
 # 03. Some Preliminary analysìs on the TS
-PP.test(data_ts) #p-value 0.2348 --> has unit root
+PP.test(data_ts) #p-value 0.05299 --> has unit root
 Acf(data_ts)
 Pacf(data_ts)
 
 #####
 # 04. Forecasting - still under development
-fit_arima <- auto.arima (data_ts, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+fit_arima <- auto.arima (data_ts, stepwise = FALSE, approximation = FALSE, trace = TRUE) #Sigma^2 860.9
 print(summary(fit_arima))   # 
-checkresiduals(fit_arima)
+checkresiduals(fit_arima) # Ljung Box Test - p-value 0.12 ==> Residuals are independent [OK] - https://www.statology.org/ljung-box-test/
 
 fcst_arima <- forecast(fit_arima,h=21)
 
